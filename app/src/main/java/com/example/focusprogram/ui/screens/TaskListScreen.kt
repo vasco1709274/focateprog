@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -12,19 +12,38 @@ import com.example.focusprogram.data.model.Task
 import com.example.focusprogram.data.viewmodel.TaskViewModel
 
 @Composable
-fun TaskListScreen(
-    taskViewModel: TaskViewModel = viewModel() // Usa ViewModel corretamente
-) {
-    val tasks = taskViewModel.tasks
+fun TaskListScreen(taskViewModel: TaskViewModel = viewModel()) {
+    val tasks by taskViewModel.tasks.collectAsState()
+    var newTaskTitle by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)) {
-
+    Column(modifier = Modifier.padding(16.dp)) {
         Text(
             text = "Lista de Tarefas",
             style = MaterialTheme.typography.headlineSmall
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Input para nova tarefa
+        Row(modifier = Modifier.fillMaxWidth()) {
+            TextField(
+                value = newTaskTitle,
+                onValueChange = { newTaskTitle = it },
+                modifier = Modifier.weight(1f),
+                placeholder = { Text("Nova tarefa") }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(
+                onClick = {
+                    if (newTaskTitle.isNotBlank()) {
+                        taskViewModel.addTask(newTaskTitle.trim())
+                        newTaskTitle = ""
+                    }
+                }
+            ) {
+                Text("Adicionar")
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -37,18 +56,6 @@ fun TaskListScreen(
                 )
                 Divider()
             }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                // Apenas adiciona uma tarefa de teste para já
-                taskViewModel.addTask("Nova Tarefa")
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Adicionar Tarefa")
         }
     }
 }
@@ -68,7 +75,10 @@ fun TaskItem(
         Row {
             Checkbox(
                 checked = task.isDone,
-                onCheckedChange = { onCheckedChange() }
+                onCheckedChange = { onCheckedChange() },
+                colors = CheckboxDefaults.colors(
+                    checkedColor = MaterialTheme.colorScheme.primary
+                )
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(

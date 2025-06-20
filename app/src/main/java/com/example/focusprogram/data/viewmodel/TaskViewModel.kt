@@ -1,32 +1,35 @@
 package com.example.focusprogram.data.viewmodel
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.focusprogram.data.model.Task
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class TaskViewModel : ViewModel() {
 
-    // Lista de tarefas reativa
-    private val _tasks = mutableStateListOf<Task>()
-    val tasks: List<Task> get() = _tasks
-
-    fun addTask(title: String) {
-        val newTask = Task(
-            id = if (_tasks.isEmpty()) 1 else _tasks.maxOf { it.id } + 1,
-            title = title
+    private val _tasks = MutableStateFlow<List<Task>>(
+        listOf(
+            Task(1, "Comprar pão", false),
+            Task(2, "Fazer exercícios", true),
+            Task(3, "Ler livro", false)
         )
-        _tasks.add(newTask)
-    }
+    )
+    val tasks: StateFlow<List<Task>> = _tasks.asStateFlow()
 
     fun toggleTaskDone(taskId: Int) {
-        val index = _tasks.indexOfFirst { it.id == taskId }
-        if (index != -1) {
-            val task = _tasks[index]
-            _tasks[index] = task.copy(isDone = !task.isDone)
+        _tasks.value = _tasks.value.map {
+            if (it.id == taskId) it.copy(isDone = !it.isDone) else it
         }
     }
 
     fun removeTask(taskId: Int) {
-        _tasks.removeAll { it.id == taskId }
+        _tasks.value = _tasks.value.filter { it.id != taskId }
+    }
+
+    fun addTask(title: String) {
+        val newId = (_tasks.value.maxOfOrNull { it.id } ?: 0) + 1
+        val newTask = Task(newId, title)
+        _tasks.value = _tasks.value + newTask
     }
 }

@@ -15,12 +15,13 @@ import com.example.focusprogram.ui.theme.FocusProgramTheme
 import com.example.focusprogram.ui.screens.TaskListScreen
 
 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            TaskListScreen()
+            FocusProgramTheme {  // ou MaterialTheme se não tiver tema customizado
+                TaskListScreen()
+            }
         }
     }
 }
