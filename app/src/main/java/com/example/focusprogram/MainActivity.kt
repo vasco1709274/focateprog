@@ -1,5 +1,7 @@
 package com.example.focusprogram
 
+import androidx.activity.viewModels
+import com.example.focusprogram.data.viewmodel.TaskViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,9 +20,11 @@ import com.example.focusprogram.ui.screens.TaskListScreen
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val taskViewModel: TaskViewModel by viewModels()
+
         setContent {
-            FocusProgramTheme {  // ou MaterialTheme se não tiver tema customizado
-                TaskListScreen()
+            FocusProgramTheme {
+                TaskListScreen(taskViewModel)
             }
         }
     }
